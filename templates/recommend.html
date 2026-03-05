@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Recommend Books</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+    background-color:#0d0d0d;
+    color:white;
+}
+
+/* NAVBAR */
+
+.navbar{
+    background-color:#14532d;
+}
+
+.navbar-brand{
+    color:white !important;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.nav-link{
+    color:white !important;
+    font-size:18px;
+    margin-left:20px;
+}
+
+.nav-link:hover{
+    color:#90ee90 !important;
+}
+
+/* TITLE */
+
+.page-title{
+    font-size:45px;
+    font-weight:bold;
+    margin-top:40px;
+}
+
+/* SEARCH */
+
+.search-box{
+    margin-top:30px;
+    margin-bottom:40px;
+}
+
+.search-input{
+    border-radius:30px;
+    padding:12px;
+}
+
+/* AUTOCOMPLETE */
+
+#suggestions{
+    background:white;
+    color:black;
+    position:absolute;
+    width:100%;
+    z-index:1000;
+    border-radius:6px;
+}
+
+/* BUTTON */
+
+.recommend-btn{
+    border-radius:30px;
+    background-color:#22c55e;
+    color:white;
+    font-weight:bold;
+}
+
+.recommend-btn:hover{
+    background-color:#16a34a;
+}
+
+/* BOOK CARD */
+
+.book-card{
+    background:#1a1a1a;
+    border-radius:15px;
+    padding:10px;
+    transition:0.3s;
+}
+
+.book-card:hover{
+    transform:scale(1.05);
+}
+
+.book-card img{
+    height:260px;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+.book-title{
+    font-size:16px;
+    font-weight:bold;
+}
+
+.book-author{
+    font-size:14px;
+    color:#cfcfcf;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav class="navbar navbar-expand-lg">
+
+<a class="navbar-brand ms-3" href="/">Book Recommender</a>
+
+<div class="collapse navbar-collapse">
+
+<ul class="navbar-nav ms-auto me-4">
+
+<li class="nav-item">
+<a class="nav-link" href="/">Home</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="/recommend">Recommend</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="#">Contact</a>
+</li>
+
+</ul>
+
+</div>
+
+</nav>
+
+<div class="container text-center">
+
+<h1 class="page-title">Recommend Books</h1>
+
+<div class="row justify-content-center search-box">
+
+<div class="col-md-6 position-relative">
+
+<form action="/recommend_books" method="post">
+
+<input id="bookInput"
+name="user_input"
+type="text"
+class="form-control search-input"
+placeholder="Enter book name">
+
+<ul id="suggestions" class="list-group"></ul>
+
+<br>
+
+<button class="btn recommend-btn btn-lg w-100">
+Recommend
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<div class="row g-4">
+
+{% if data %}
+
+{% for i in data %}
+
+<div class="col-lg-3 col-md-4 col-sm-6">
+
+<div class="book-card">
+
+<img src="{{ i[2] }}" class="img-fluid">
+
+<div class="p-2">
+
+<div class="book-title">{{ i[0] }}</div>
+
+<div class="book-author">{{ i[1] }}</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+</div>
+
+</div>
+
+
+<script>
+
+const input = document.getElementById("bookInput");
+const suggestions = document.getElementById("suggestions");
+
+input.addEventListener("input", function() {
+
+    const query = input.value;
+
+    if(query.length < 2){
+        suggestions.innerHTML = "";
+        return;
+    }
+
+    fetch(`/autocomplete?q=${query}`)
+    .then(response => response.json())
+    .then(data => {
+
+        suggestions.innerHTML = "";
+
+        data.forEach(book => {
+
+            const li = document.createElement("li");
+
+            li.classList.add("list-group-item");
+
+            li.textContent = book;
+
+            li.onclick = () => {
+                input.value = book;
+                suggestions.innerHTML = "";
+            };
+
+            suggestions.appendChild(li);
+
+        });
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>
